@@ -1,5 +1,5 @@
 export const examples = [
-  "The world is a good place",
-  "Love is often difficult",
-  "I am a good person",
+  "I want something eggy, and creamy",
+  "Whats something that is meaty, and spicy",
+  "I want an easy to make pasta dish",
 ];

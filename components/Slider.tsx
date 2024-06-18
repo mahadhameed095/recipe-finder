@@ -3,33 +3,23 @@
 import * as React from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
 
 const Slider = ({
   value,
   setValue,
-  handleSubmit,
-  searchTerm,
 }: {
-  value: number[];
-  setValue: React.Dispatch<React.SetStateAction<number[]>>;
-  handleSubmit: (
-    newSearchTerm?: string,
-    newHybridSearchCombination?: number
-  ) => void;
-  searchTerm: string;
+  value : number;
+  setValue: React.Dispatch<React.SetStateAction<number>>;
 }) => {
+  const [immediateValue, setImmediateValue] = useState<number[]>([0.5]);
   return (
     <div className="flex flex-row items-center gap-5 max-w-[750px] w-full">
       <div className="max-w-[750px] py-3 flex flex-row gap-2 items-center justify-between flex-grow  ">
         <div className="text-xs text-center">keyword search only</div>
         <SliderPrimitive.Root
-          value={value}
-          onValueChange={(value) => {
-            setValue(value);
-            if (searchTerm !== "") {
-              handleSubmit(undefined, value[0]);
-            }
-          }}
+          value={[value]}
+          onValueChange={value => setValue(value[0])}
           max={1.0}
           step={0.05}
           className="relative flex w-full touch-none select-none items-center "
@@ -39,7 +29,7 @@ const Slider = ({
           </SliderPrimitive.Track>
           <SliderPrimitive.Thumb className="block relative h-8 shadow-lg w-3 rounded-full   bg-highlight transition-colors  disabled:pointer-events-none disabled:opacity-50">
             <div className="absolute -bottom-6 inset-x-auto text-sm left-1/2 transform -translate-x-1/2 ">
-              {value[0]}
+              {value}
             </div>
           </SliderPrimitive.Thumb>
         </SliderPrimitive.Root>

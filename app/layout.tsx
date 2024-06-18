@@ -13,8 +13,8 @@ const noto_serif = Noto_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Weaviate Quote Finder",
-  description: "Find a quote that supports your argument",
+  title: "Weaviate Recipe Finder",
+  description: "Find a recipe that meets your craving!",
 };
 
 export default function RootLayout({

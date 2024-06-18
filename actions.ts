@@ -1,79 +1,276 @@
 "use server";
 
-import weaviate from "weaviate-client";
+import { WeaviateGenericObject } from "weaviate-client";
+// import weaviate from "weaviate-client";
 
-import { QuoteType } from "./types";
-import { kv } from "@vercel/kv";
+import { RecipeType } from "./types";
+// import { kv } from "@vercel/kv";
 
-const client = await weaviate.connectToWCS(process.env.WCS_URL!!, {
-  authCredentials: new weaviate.ApiKey(process.env.WCS_API_KEY!!),
-  headers: {
-    "X-OpenAI-Api-Key": process.env.OPENAI_APIKEY!!,
-  },
-});
+// const client = await weaviate.connectToWeaviateCloud(process.env.WCS_URL!!, {
+//   authCredentials: new weaviate.ApiKey(process.env.WCS_API_KEY!!),
+//   headers: {
+//     "X-Cohere-Api-Key": process.env.COHERE_APIKEY!!,
+//   },
+// });
 
-export async function findQuotesByArgument(searchTerm: string, alpha: number) {
-  const cachedResult = await kv.get<QuoteType[]>(searchTerm + alpha.toString());
+// export async function findRecipesByArgument(searchTerm: string, alpha: number) {
+  
+//   // check the cache
+//   // const cachedResult = await kv.get<RecipeType[]>(searchTerm + alpha.toString());
 
-  if (cachedResult) {
-    return filterQuotes(cachedResult);
-  }
+//   // return if cache-hit
+//   // if (cachedResult) return cachedResult;
 
-  const collection = await client.collections.get<Omit<QuoteType, "distance">>(
-    "QuoteFinder"
-  );
+//   // if miss, then first get reference to the collection "Recipe" 
+//   const collection = client.collections.get<RecipeType>(
+//     "Recipe"
+//   );
 
-  const { objects } = await collection.query.hybrid(searchTerm, {
-    limit: 20,
-    alpha: alpha,
-    returnMetadata: ["score", "explainScore"],
-    returnProperties: ["quote", "author"],
-  });
+//   // Weaviate's hybrid search functionality to get top 20 most relevant recipes 
+//   const { objects : recipes } = await collection.query.hybrid(searchTerm, {
+//     limit: 20,
+//     alpha,
+//     returnMetadata: ["score", "explainScore"],
+//   });
 
-  const quotesAndAuthorsArray: QuoteType[] = objects.map((quote) => ({
-    ...quote.properties,
-    distance: quote.metadata?.score!!,
-  }));
+//   // store the results in cache for next usage
+//   // await kv.set(
+//   //   searchTerm + alpha.toString(),
+//   //   JSON.stringify(recipes)
+//   // );
 
-  await kv.set(
-    searchTerm + alpha.toString(),
-    JSON.stringify(quotesAndAuthorsArray)
-  );
+//   return recipes;
+// }
 
-  return filterQuotes(quotesAndAuthorsArray);
+export async function delay(ms : number){ 
+  return await (new Promise(res => setTimeout(res, ms)));
 }
 
-const filterQuotes = (quotes: QuoteType[]) => {
-  const filterWhitespaceErrors = (quotes: QuoteType[]) => {
-    const regex = new RegExp(/[a-z][A-Z]|[.,?!][A-Z]/g);
 
-    const filteredQuotes = quotes.filter((quote) => {
-      const errors = quote.quote.match(regex);
-      return errors === null;
-    });
+const recipes : RecipeType[]  = [
+  {
+    title: "Spaghetti Carbonara",
+    directions: [
+      "Cook spaghetti according to package instructions.",
+      "In a separate bowl, beat the eggs and grate the Parmesan cheese.",
+      "Cook pancetta until crispy.",
+      "Combine pasta, pancetta, egg mixture, and reserved pasta water.",
+      "Serve immediately with extra Parmesan."
+    ],
+    ingredients: [
+      "Spaghetti",
+      "Eggs",
+      "Parmesan cheese",
+      "Pancetta",
+      "Salt",
+      "Black pepper"
+    ]
+  },
+  {
+    title: "Chicken Curry",
+    directions: [
+      "Heat oil in a pot.",
+      "Sauté onions until golden brown.",
+      "Add ginger-garlic paste and cook for a few minutes.",
+      "Add chicken pieces and cook until browned.",
+      "Add tomatoes and spices, and cook until oil separates.",
+      "Add water and simmer until chicken is cooked through.",
+      "Garnish with cilantro and serve."
+    ],
+    ingredients: [
+      "Chicken",
+      "Onions",
+      "Ginger-garlic paste",
+      "Tomatoes",
+      "Curry powder",
+      "Cumin",
+      "Cilantro",
+      "Oil",
+      "Salt"
+    ]
+  },
+  {
+    title: "Vegetable Stir Fry",
+    directions: [
+      "Heat oil in a large skillet.",
+      "Add garlic and cook until fragrant.",
+      "Add mixed vegetables and cook until tender.",
+      "Stir in soy sauce and cook for another minute.",
+      "Serve hot with rice."
+    ],
+    ingredients: [
+      "Mixed vegetables",
+      "Garlic",
+      "Soy sauce",
+      "Oil",
+      "Salt",
+      "Pepper",
+      "Rice"
+    ]
+  },
+  {
+    title: "Beef Tacos",
+    directions: [
+      "Cook ground beef in a skillet until browned.",
+      "Add taco seasoning and water, and simmer until thickened.",
+      "Warm taco shells in the oven.",
+      "Assemble tacos with beef, lettuce, cheese, and salsa.",
+      "Serve immediately."
+    ],
+    ingredients: [
+      "Ground beef",
+      "Taco seasoning",
+      "Water",
+      "Taco shells",
+      "Lettuce",
+      "Cheddar cheese",
+      "Salsa"
+    ]
+  },
+  {
+    title: "Pancakes",
+    directions: [
+      "In a bowl, mix flour, sugar, baking powder, and salt.",
+      "In another bowl, whisk together milk, eggs, and melted butter.",
+      "Combine wet and dry ingredients, and mix until smooth.",
+      "Heat a non-stick skillet and pour batter to form pancakes.",
+      "Cook until bubbles form, then flip and cook until golden brown.",
+      "Serve with syrup and butter."
+    ],
+    ingredients: [
+      "Flour",
+      "Sugar",
+      "Baking powder",
+      "Salt",
+      "Milk",
+      "Eggs",
+      "Butter",
+      "Syrup"
+    ]
+  },
+  {
+    title: "Caesar Salad",
+    directions: [
+      "Chop romaine lettuce and place in a large bowl.",
+      "Prepare Caesar dressing by mixing garlic, lemon juice, Dijon mustard, and olive oil.",
+      "Toss lettuce with dressing, croutons, and Parmesan cheese.",
+      "Serve immediately."
+    ],
+    ingredients: [
+      "Romaine lettuce",
+      "Garlic",
+      "Lemon juice",
+      "Dijon mustard",
+      "Olive oil",
+      "Croutons",
+      "Parmesan cheese",
+      "Salt",
+      "Pepper"
+    ]
+  },
+  {
+    title: "Grilled Cheese Sandwich",
+    directions: [
+      "Butter one side of each bread slice.",
+      "Place cheese slices between the bread, buttered side out.",
+      "Heat a skillet over medium heat and cook sandwich until golden brown on both sides.",
+      "Serve immediately."
+    ],
+    ingredients: [
+      "Bread",
+      "Butter",
+      "Cheese slices"
+    ]
+  },
+  {
+    title: "Tomato Soup",
+    directions: [
+      "Heat oil in a pot and sauté onions until translucent.",
+      "Add garlic and cook for another minute.",
+      "Add tomatoes and cook until they break down.",
+      "Blend the mixture until smooth.",
+      "Add vegetable broth and simmer for 15 minutes.",
+      "Season with salt and pepper.",
+      "Serve hot with a dollop of cream."
+    ],
+    ingredients: [
+      "Tomatoes",
+      "Onions",
+      "Garlic",
+      "Vegetable broth",
+      "Olive oil",
+      "Salt",
+      "Pepper",
+      "Cream"
+    ]
+  },
+  {
+    title: "Chocolate Chip Cookies",
+    directions: [
+      "Preheat oven to 350°F (175°C).",
+      "Cream together butter and sugar until smooth.",
+      "Beat in eggs one at a time, then stir in vanilla.",
+      "Combine flour, baking soda, and salt, and gradually add to the creamed mixture.",
+      "Stir in chocolate chips.",
+      "Drop by spoonfuls onto ungreased baking sheets.",
+      "Bake for 10-12 minutes or until edges are golden brown.",
+      "Cool on wire racks."
+    ],
+    ingredients: [
+      "Butter",
+      "Sugar",
+      "Brown sugar",
+      "Eggs",
+      "Vanilla extract",
+      "Flour",
+      "Baking soda",
+      "Salt",
+      "Chocolate chips"
+    ]
+  },
+  {
+    title: "Guacamole",
+    directions: [
+      "Mash avocados in a bowl.",
+      "Add lime juice, salt, and pepper.",
+      "Mix in chopped onions, tomatoes, cilantro, and jalapeño.",
+      "Serve immediately with tortilla chips."
+    ],
+    ingredients: [
+      "Avocados",
+      "Lime juice",
+      "Salt",
+      "Pepper",
+      "Onions",
+      "Tomatoes",
+      "Cilantro",
+      "Jalapeño",
+      "Tortilla chips"
+    ]
+  }
+]
 
-    return filteredQuotes;
-  };
+function weaviateRecipeWrapper(recipe : RecipeType) : WeaviateGenericObject<RecipeType>{
+  return ({
+    metadata : { score : Math.random()},
+    properties : recipe,
+    references : undefined,
+    uuid : "",
+    vectors : {}
+  })
+}
 
-  const filterQuotesWithLength = (quotes: QuoteType[]) => {
-    const filteredQuotes = quotes.filter((quote) => {
-      return quote.quote.length <= 400;
-    });
+export async function findRecipesByArgument(searchTerm: string, alpha: number){
 
-    return filteredQuotes;
-  };
+  
+  // await delay(3000);
+  return recipes.map(weaviateRecipeWrapper);;
+}
 
-  const filterQuotesWithAuthorLength = (quotes: QuoteType[]) => {
-    const filteredQuotes = quotes.filter((quote) => {
-      return quote.author.length <= 200;
-    });
+export async function findRecipeByTitle(title : string){
+  const recipe = recipes.find(item => item.title === title);
 
-    return filteredQuotes;
-  };
+  if(!recipe) throw `A recipe with title : ${title} was not found with in the database.`;
 
-  const filteredQuotes = filterQuotesWithAuthorLength(
-    filterWhitespaceErrors(filterQuotesWithLength(quotes))
-  );
-
-  return filteredQuotes;
-};
+  return weaviateRecipeWrapper(recipe);
+}

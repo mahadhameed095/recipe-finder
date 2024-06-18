@@ -25,5 +25,14 @@ body {
 }
 
 ::selection {
-  background: #a0ffa4;
+  @apply bg-highlight
 }
+
+
+/* body {
+  @apply bg-cover bg-center bg-no-repeat min-h-screen;
+  background-color: #f2ebdb;
+  background-size : 1000px 100vh;
+
+  background-image: linear-gradient(to right, rgba(255,255,255, 0.3) 0 100%), url(/wave-haikei.svg);
+} */
