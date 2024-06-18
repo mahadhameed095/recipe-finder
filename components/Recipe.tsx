@@ -21,7 +21,7 @@ export default function Recipe(recipe : WeaviateGenericObject<RecipeType>) {
               <p>{recipe.properties.ingredients.length} Ingredients</p>
             </div>
           </div>
-          <div title="Relevancy Score" className=" w-20 h-20 rounded-full bg-highlight flex justify-center items-center">{recipe.metadata!.score!.toPrecision(3)}</div>
+          <div title="Relevancy Score" className=" shrink-0 w-20 h-20 rounded-full bg-highlight flex justify-center items-center">{recipe.metadata!.score!.toPrecision(3)}</div>
         </div>
       </Link>
     </>
