@@ -1,3 +1,5 @@
-# QuoteFinder
+# RecipeFinder
 
-Find a quote to support any argument! Weaviate will use hybrid search, a combination of semantic search and keyword search, to find the quotes that best match your query. Semantic search allows you to search on the meaning of the text, which is great for big ideas or general arguments, while keyword search looks for exact matches between the query and the quotes, which works well if you have an exact phrase in mind.
+A Recommender System / Search Engine for finding recipes based on your query. It was built to test out the capabilities of Weaviate's Hybrid Search capabilities. Check out the demo [here](https://recipe-finder-sage-eight.vercel.app/). 
+
+Check out the notebook for data processing, cleaning, and pushing to weaviate [here](https://www.kaggle.com/code/mahadhameed/weaviate-recipes).
