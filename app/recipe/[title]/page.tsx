@@ -1,8 +1,8 @@
 import { findRecipeByTitle } from "@/actions"
 
 export default async function Page({ params }: { params: { title: string } }) {
-    const title = decodeURI(params.title);
-
+    const title = decodeURIComponent(params.title);
+    console.log("parsed", title);
     const recipe = await findRecipeByTitle(title);
 
     return (
